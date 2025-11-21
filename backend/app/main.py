@@ -1,12 +1,19 @@
+# app/main.py
 from fastapi import FastAPI
-from app.routers import auth
-import uvicorn
 
-app = FastAPI(title="DeskHub Backend", version="1.0.0")
+from .db import Base, engine
+from .routers.products import router as products_router
 
-# register router 
-app.include_router(auth.router)
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(
+    title="DeskHub Backend (PostgreSQL Version)",
+    version="1.0.0"
+)
+
+app.include_router(products_router)
+
 
 @app.get("/")
 def root():
-    return {"message": "DeskHub Backend Running"}
+    return {"message": "DeskHub Backend Running with PostgreSQL"}
