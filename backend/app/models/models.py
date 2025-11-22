@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Float, ForeignKey, Text, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
 from datetime import datetime
+from sqlalchemy.sql import func
 
 from ..db import Base
 
@@ -86,3 +87,21 @@ class TemplateItem(Base):
     template = relationship("Template", back_populates="items")
     product = relationship("Product", back_populates="template_items")
 
+# --- 6. Tracking Events (新增) ---
+
+class ViewEvent(Base):
+    __tablename__ = "view_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    template_id = Column(Integer, ForeignKey("templates.id"), nullable=False)
+    # 如果未来做用户系统，这里可以加 user_id
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class ClickEvent(Base):
+    __tablename__ = "click_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
+    product_id = Column(Integer, ForeignKey("products.id"), nullable=True)
+    platform = Column(String(50), nullable=True) # e.g. "Amazon", "JD"
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
