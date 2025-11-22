@@ -1,9 +1,8 @@
-# app/main.py
 from fastapi import FastAPI
 
 from .db import Base, engine
 from .routers.products import router as products_router
-
+from .routers.templates import router as templates_router
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -12,7 +11,7 @@ app = FastAPI(
 )
 
 app.include_router(products_router)
-
+app.include_router(templates_router)
 
 @app.get("/")
 def root():
