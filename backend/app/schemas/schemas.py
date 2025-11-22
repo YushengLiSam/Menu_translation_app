@@ -61,5 +61,10 @@ class TemplateOut(TemplateBase):
     # 嵌套 items
     items: List[TemplateItemOut] = []
 
+class FeedResponse(BaseModel):
+    data: List[TemplateOut]      # 这一刷出来的 10 个模板
+    next_cursor: Optional[int]   # 下一页的游标 (如果没了就是 null)
+    has_more: bool               # 方便前端判断是否要显示 "没有更多了"
+
     class Config:
         orm_mode = True
