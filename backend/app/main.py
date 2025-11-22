@@ -4,6 +4,9 @@ from .db import Base, engine
 from .routers.products import router as products_router
 from .routers.templates import router as templates_router
 from .routers.templates import router as feed_router
+from .routers.templates import router as tracking_router
+from .routers.configurator import router as configurator_router
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -14,6 +17,8 @@ app = FastAPI(
 app.include_router(products_router)
 app.include_router(templates_router)
 app.include_router(feed_router)
+app.include_router(tracking_router)
+app.include_router(configurator_router)
 
 @app.get("/")
 def root():
