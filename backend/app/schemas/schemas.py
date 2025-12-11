@@ -2,6 +2,23 @@ from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime
 
+# --- [新增] 写入专用 ---
+class AffiliateLinkCreate(BaseModel):
+    platform: str
+    url: str
+    commission_pct: float
+
+class ProductCreate(BaseModel):
+    name: str
+    brand: Optional[str] = None
+    price: float
+    currency: str = "CNY"
+    image_url: Optional[str] = None
+    specs: Optional[dict] = None
+    category_id: int
+    affiliate_links: List[AffiliateLinkCreate] = []
+
+# --- [原有] 读取专用 ---
 class AffiliateLinkRead(BaseModel):
     id: int
     platform: str
@@ -33,6 +50,15 @@ class ProductRead(BaseModel):
     class Config:
         orm_mode = True
 
+class UserOut(BaseModel):
+    id: int
+    username: str
+    email: str
+    avatar_url: Optional[str] = None
+    
+    class Config:
+        from_attributes = True
+
 class TemplateBase(BaseModel):
     title: str
     description: Optional[str] = None
@@ -40,14 +66,24 @@ class TemplateBase(BaseModel):
     cover_image_url: Optional[str] = None
 
 # --- 创建模板 (API 请求参数) ---
+class TemplateItemCreate(BaseModel):
+    product_id: int
+    position_x: float = 0
+    position_y: float = 0
+
 class TemplateCreate(TemplateBase):
-    # 关键：接收一个产品ID列表，例如 [1, 5, 10]
-    product_ids: List[int] = []
+    # 关键：接收一个产品 Item 列表
+    items: List[TemplateItemCreate] = []
+
+class TemplateUpdate(TemplateCreate):
+    pass
 
 # --- 模板内的单项商品 ---
 class TemplateItemOut(BaseModel):
     # 直接嵌套完整的 ProductRead
     product: ProductRead 
+    position_x: float
+    position_y: float
     
     class Config:
         orm_mode = True
@@ -60,6 +96,8 @@ class TemplateOut(TemplateBase):
     created_at: datetime
     # 嵌套 items
     items: List[TemplateItemOut] = []
+    # Include creator info
+    creator: Optional[UserOut] = None
 
 class FeedResponse(BaseModel):
     data: List[TemplateOut]      # 这一刷出来的 10 个模板
@@ -93,3 +131,16 @@ class ConfigResponse(BaseModel):
     
     class Config:
         orm_mode = True
+
+class UserCreate(BaseModel):
+    email: str
+    username: str
+    password: str
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str

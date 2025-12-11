@@ -4,10 +4,32 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app import models
-from app.schemas.schemas import ProductRead
-
+from app.schemas.schemas import ProductRead, ProductCreate
+from .auth import get_current_user
+from app.models import User
 
 router = APIRouter(prefix = "/products", tags = ["products"])
+
+@router.post("/", response_model=ProductRead, status_code=201)
+def create_product(
+    product_in: ProductCreate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    # 简单的创建逻辑，暂不处理复杂的 cateogry 校验
+    new_product = models.Product(
+        name=product_in.name,
+        brand=product_in.brand,
+        price=product_in.price,
+        currency=product_in.currency,
+        image_url=product_in.image_url,
+        category_id=product_in.category_id,
+        specs=product_in.specs
+    )
+    db.add(new_product)
+    db.commit()
+    db.refresh(new_product)
+    return new_product
 
 @router.get("/", response_model=List[ProductRead])
 

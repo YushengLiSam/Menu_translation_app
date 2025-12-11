@@ -1,11 +1,23 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, Text, Boolean, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
-from datetime import datetime
 from sqlalchemy.sql import func
 
 from ..db import Base
 
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    username = Column(String(100), unique=True, index=True, nullable=False)
+    password_hash = Column(String(255), nullable=False) # Store encrypted passwords
+    avatar_url = Column(String(500), nullable=True)     # User avatar
+    role = Column(String(20), default="user")           # user / admin
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    templates = relationship("Template", back_populates="creator")
 
 class Category(Base):
     __tablename__ = "categories"
@@ -14,7 +26,6 @@ class Category(Base):
     name = Column(String(100), nullable=False, unique=True)
     description = Column(Text, nullable=True)
     products = relationship("Product", back_populates="category")
-
 
 class Product(Base):
     __tablename__ = "products"
@@ -28,18 +39,17 @@ class Product(Base):
     price = Column(Float, nullable=False)
     currency = Column(String(10), default="CNY")
 
-    image_url = Column(String(500), nullable=True)
+    image_url = Column(Text, nullable=True)
 
-    specs = Column(JSONB, nullable=True)  # 使用 PostgreSQL JSONB（比 TEXT 更强）
+    specs = Column(JSONB, nullable=True)  # Specifications
 
     is_active = Column(Boolean, default=True)
 
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     category = relationship("Category", back_populates="products")
     affiliate_links = relationship("AffiliateLink", back_populates="product")
-
 
 class AffiliateLink(Base):
     __tablename__ = "affiliate_links"
@@ -49,19 +59,22 @@ class AffiliateLink(Base):
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
     platform = Column(String(50), nullable=False)       # "Amazon", "JD", "Official"
     url = Column(String(1000), nullable=False)
-    commission_pct = Column(Float, nullable=False)
+    commission_pct = Column(Float, nullable=False)      # commission rate
 
     product = relationship("Product", back_populates="affiliate_links")
 
-# --- 4. Templates (新增) ---
 class Template(Base):
     __tablename__ = "templates"
 
     id = Column(Integer, primary_key=True, index=True)
+    
+    # nullable=False indicates that users must be logged in to post.
+    creator_id = Column(Integer, ForeignKey("users.id"), nullable=False) 
+    
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     style = Column(String(50), nullable=True) # e.g. Minimal, Cyberpunk
-    cover_image_url = Column(String(500), nullable=True)
+    cover_image_url = Column(Text, nullable=True)
     
     # 推荐流所需的统计字段
     views = Column(Integer, default=0)
@@ -69,10 +82,12 @@ class Template(Base):
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    # 关联
     items = relationship("TemplateItem", back_populates="template")
+    
+    creator = relationship("User", back_populates="templates")
 
-# --- 5. Template Items (新增 - 关联表) ---
+
+
 class TemplateItem(Base):
     __tablename__ = "template_items"
 
@@ -80,21 +95,23 @@ class TemplateItem(Base):
     template_id = Column(Integer, ForeignKey("templates.id"), nullable=False)
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
     
-    # 可选：物品在图片中的位置
-    position_x = Column(Float, nullable=True)
-    position_y = Column(Float, nullable=True)
-
+    # Optional metadata for positioning
+    position_x = Column(Float, default=0)
+    position_y = Column(Float, default=0)
+    
     template = relationship("Template", back_populates="items")
-    product = relationship("Product", back_populates="template_items")
-
-# --- 6. Tracking Events (新增) ---
+    product = relationship("Product")
 
 class ViewEvent(Base):
+
     __tablename__ = "view_events"
 
     id = Column(Integer, primary_key=True, index=True)
     template_id = Column(Integer, ForeignKey("templates.id"), nullable=False)
-    # 如果未来做用户系统，这里可以加 user_id
+    
+    # ✅ New: Record who viewed it (may be left blank, as visitors can view it too)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class ClickEvent(Base):
@@ -103,5 +120,9 @@ class ClickEvent(Base):
     id = Column(Integer, primary_key=True, index=True)
     template_id = Column(Integer, ForeignKey("templates.id"), nullable=True)
     product_id = Column(Integer, ForeignKey("products.id"), nullable=True)
-    platform = Column(String(50), nullable=True) # e.g. "Amazon", "JD"
+    platform = Column(String(50), nullable=True)
+    
+    # ✅ New: Record who clicked (may be left blank)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
