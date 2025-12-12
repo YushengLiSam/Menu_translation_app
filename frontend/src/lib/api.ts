@@ -10,6 +10,7 @@ export interface Product {
     price: number;
     currency: string;
     image_url?: string;
+    specs?: Record<string, any>;
 }
 
 export interface TemplateItem {
@@ -129,6 +130,16 @@ export interface ProductCreate {
     specs?: Record<string, any>;
 }
 
+export interface ProductUpdate {
+    name?: string;
+    brand?: string;
+    price?: number;
+    currency?: string;
+    image_url?: string;
+    category_id?: number;
+    specs?: Record<string, any>;
+}
+
 export const productService = {
     async getProducts(limit = 50, skip = 0): Promise<Product[]> {
         const response = await fetch(`${API_URL}/products/?limit=${limit}&offset=${skip}`);
@@ -154,6 +165,26 @@ export const productService = {
         if (!response.ok) {
             const error = await response.json();
             throw new Error(error.detail || 'Failed to create product');
+        }
+        return response.json();
+    },
+
+    async updateProduct(id: number, data: ProductUpdate): Promise<Product> {
+        const token = authService.getToken();
+        if (!token) throw new Error('Not authenticated');
+
+        const response = await fetch(`${API_URL}/products/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to update product');
         }
         return response.json();
     }

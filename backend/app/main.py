@@ -54,3 +54,15 @@ app.include_router(auth_router)
 @app.get("/")
 def root():
     return {"message": "DeskHub Backend Running with PostgreSQL"}
+
+@app.get("/fix-db")
+def fix_db():
+    from sqlalchemy import text
+    from app.db import engine
+    try:
+        with engine.connect() as connection:
+            with connection.begin():
+                connection.execute(text("ALTER TABLE products ALTER COLUMN image_url TYPE TEXT;"))
+        return {"status": "success", "message": "Calculated fix applied: image_url converted to TEXT"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}

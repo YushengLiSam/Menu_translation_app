@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app import models
-from app.schemas.schemas import ProductRead, ProductCreate
+from app.schemas.schemas import ProductRead, ProductCreate, ProductUpdate
 from .auth import get_current_user
 from app.models import User
 
@@ -32,7 +32,6 @@ def create_product(
     return new_product
 
 @router.get("/", response_model=List[ProductRead])
-
 def list_products(
     db: Session = Depends(get_db),
     category_id: Optional[int] = None,
@@ -67,4 +66,25 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
     if not product:
         raise HTTPException(404, "Product not found")
 
+    return product
+
+@router.put("/{product_id}", response_model=ProductRead)
+def update_product(
+    product_id: int,
+    product_in: ProductUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    # Update fields
+    update_data = product_in.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(product, field, value)
+
+    db.add(product)
+    db.commit()
+    db.refresh(product)
     return product

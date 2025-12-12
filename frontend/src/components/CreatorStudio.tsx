@@ -15,7 +15,7 @@ import {
   Edit2
 } from 'lucide-react';
 import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -56,9 +56,11 @@ interface CreatorStudioProps {
 }
 
 export function CreatorStudio({ onBack }: CreatorStudioProps) {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'create'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'create' | 'products'>('dashboard');
   const [templates, setTemplates] = useState<Template[]>([]);
   const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
+  const [editingProductId, setEditingProductId] = useState<number | null>(null);
+  const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
 
   // Create template state
   const [newTemplate, setNewTemplate] = useState({
@@ -291,10 +293,11 @@ export function CreatorStudio({ onBack }: CreatorStudioProps) {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'dashboard' | 'create')}>
+        <Tabs defaultValue="dashboard" value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="create">{editingTemplateId ? 'Edit Template' : 'Create Template'}</TabsTrigger>
+            <TabsTrigger value="create">Create Template</TabsTrigger>
+            <TabsTrigger value="products">My Products</TabsTrigger>
           </TabsList>
 
           {/* Dashboard Tab */}
@@ -589,6 +592,26 @@ export function CreatorStudio({ onBack }: CreatorStudioProps) {
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6 text-neutral-400 hover:text-purple-600"
+                                  onClick={() => {
+                                    setNewProduct({
+                                      name: product.name,
+                                      price: product.price,
+                                      brand: product.brand || '',
+                                      image_url: product.image_url || '',
+                                      category_id: 1,
+                                      currency: product.currency,
+                                      specs: product.specs
+                                    });
+                                    setEditingProductId(product.id);
+                                    setIsProductDialogOpen(true);
+                                  }}
+                                >
+                                  <Edit2 className="w-3 h-3" />
+                                </Button>
                               </div>
                             </CardContent>
                           </Card>
@@ -649,11 +672,37 @@ export function CreatorStudio({ onBack }: CreatorStudioProps) {
                     className="flex items-center justify-between p-2 hover:bg-neutral-100 rounded cursor-pointer border"
                     onClick={() => handleAddTag(p.id.toString())}
                   >
-                    <div>
+                    <div
+                      className="flex-1 cursor-pointer"
+                      onClick={() => handleAddTag(p.id.toString())}
+                    >
                       <p className="font-medium text-sm">{p.name}</p>
                       <p className="text-xs text-neutral-500">{p.brand}</p>
                     </div>
-                    <span className="text-sm font-semibold">¥{p.price}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold">¥{p.price}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-neutral-400 hover:text-purple-600"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setNewProduct({
+                            name: p.name,
+                            price: p.price,
+                            brand: p.brand || '',
+                            image_url: p.image_url || '',
+                            category_id: 1,
+                            currency: p.currency,
+                            specs: p.specs
+                          });
+                          setEditingProductId(p.id);
+                          setIsProductDialogOpen(true);
+                        }}
+                      >
+                        <Edit2 className="w-3 h-3" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
                 {filteredProducts.length === 0 && (
@@ -740,7 +789,172 @@ export function CreatorStudio({ onBack }: CreatorStudioProps) {
                 </Button>
               </div>
             </TabsContent>
+
+            {/* Products Tab */}
+            <TabsContent value="products">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>My Products</CardTitle>
+                      <CardDescription>Manage your product library and assets.</CardDescription>
+                    </div>
+                    <Button onClick={() => {
+                      setNewProduct({
+                        name: '',
+                        price: 0,
+                        category_id: 1, // Default
+                        brand: '',
+                        image_url: '',
+                        currency: 'CNY'
+                      });
+                      setEditingProductId(null);
+                      setIsProductDialogOpen(true);
+                    }}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Product
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {products.map((product) => (
+                      <Card key={product.id} className="overflow-hidden group relative">
+                        <div className="aspect-square bg-neutral-100 relative">
+                          {product.image_url ? (
+                            <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="flex items-center justify-center w-full h-full text-neutral-400">
+                              <ImageIcon className="w-8 h-8" />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => {
+                                setNewProduct({
+                                  name: product.name,
+                                  price: product.price,
+                                  brand: product.brand || '',
+                                  image_url: product.image_url || '',
+                                  category_id: 1, // Default or fetch
+                                  currency: product.currency
+                                });
+                                setEditingProductId(product.id);
+                                setIsProductDialogOpen(true);
+                              }}
+                            >
+                              <Edit2 className="w-4 h-4 mr-2" />
+                              Edit
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="p-3">
+                          <h3 className="font-medium truncate" title={product.name}>{product.name}</h3>
+                          <p className="text-sm text-neutral-500">{product.brand}</p>
+                          <p className="text-sm font-semibold mt-1">¥{product.price}</p>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
           </Tabs>
+
+          {/* Product Edit/Create Dialog */}
+          <Dialog open={isProductDialogOpen} onOpenChange={setIsProductDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editingProductId ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="prod-name">Name</Label>
+                  <Input
+                    id="prod-name"
+                    value={newProduct.name}
+                    onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="prod-price">Price</Label>
+                    <Input
+                      id="prod-price"
+                      type="number"
+                      value={newProduct.price}
+                      onChange={(e) => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="prod-brand">Brand</Label>
+                    <Input
+                      id="prod-brand"
+                      value={newProduct.brand}
+                      onChange={(e) => setNewProduct({ ...newProduct, brand: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label>Image</Label>
+                  <div className="flex items-center gap-4">
+                    {newProduct.image_url ? (
+                      <div className="w-20 h-20 relative rounded overflow-hidden border">
+                        <img src={newProduct.image_url} className="w-full h-full object-cover" />
+                        <button
+                          className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 hover:opacity-100"
+                          onClick={() => setNewProduct({ ...newProduct, image_url: '' })}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="w-20 h-20 bg-neutral-100 rounded border flex items-center justify-center text-neutral-400">
+                        <ImageIcon className="w-6 h-6" />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setNewProduct({ ...newProduct, image_url: reader.result as string });
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                      <p className="text-xs text-neutral-500 mt-1">Upload product image</p>
+                    </div>
+                  </div>
+                </div>
+                <Button onClick={async () => {
+                  try {
+                    if (editingProductId) {
+                      await productService.updateProduct(editingProductId, newProduct);
+                      toast.success('Product updated!');
+                    } else {
+                      await productService.createProduct(newProduct);
+                      toast.success('Product created!');
+                    }
+                    setIsProductDialogOpen(false);
+                    fetchProducts(); // Refresh list
+                  } catch (e) {
+                    toast.error('Failed to save product');
+                  }
+                }}>
+                  {editingProductId ? 'Save Changes' : 'Create Product'}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
         </DialogContent>
       </Dialog >
     </div >

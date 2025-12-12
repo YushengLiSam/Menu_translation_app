@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LogOut, User as UserIcon } from 'lucide-react';
+import { LogOut, User as UserIcon, ShoppingCart as ShoppingCartIcon, Users } from 'lucide-react';
 import { authService, type User } from './lib/auth';
 import {
   DropdownMenu,
@@ -14,14 +14,14 @@ import { ConfiguratorWizard } from './components/ConfiguratorWizard';
 import { ConfigurationReview } from './components/ConfigurationReview';
 import { PurchaseFlow } from './components/PurchaseFlow';
 import { CreatorStudio } from './components/CreatorStudio';
+import { ShoppingCartPage, type CartItem } from './components/ShoppingCartPage';
 import { Button } from './components/ui/button';
 import { Toaster, toast } from 'sonner';
 import { LoginDialog } from './components/LoginDialog';
-import { Users } from 'lucide-react';
 import type { ConfigurationData } from './components/ConfiguratorWizard';
 import type { Product } from './components/ConfigurationReview';
 
-type AppView = 'discovery' | 'configurator' | 'review' | 'purchase' | 'creator';
+type AppView = 'discovery' | 'configurator' | 'review' | 'purchase' | 'creator' | 'cart';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<AppView>('discovery');
@@ -29,6 +29,7 @@ export default function App() {
   const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -76,10 +77,37 @@ export default function App() {
     setCurrentView('purchase');
   };
 
+  const handleAddToCart = (item: CartItem) => {
+    setCartItems(prev => {
+      const existing = prev.find(i => i.id === item.id);
+      if (existing) {
+        return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+      }
+      return [...prev, { ...item, quantity: 1 }];
+    });
+    toast.success('Added to cart');
+  };
+
+  const handleUpdateCartQuantity = (id: string, delta: number) => {
+    setCartItems(prev => prev.map(item => {
+      if (item.id === id) {
+        return { ...item, quantity: Math.max(1, item.quantity + delta) };
+      }
+      return item;
+    }));
+  };
+
+  const handleRemoveCartItem = (id: string) => {
+    setCartItems(prev => prev.filter(item => item.id !== id));
+  };
+
   const renderCurrentView = () => {
     switch (currentView) {
       case 'discovery':
-        return <DiscoveryPage onStartConfiguration={handleStartConfiguration} />;
+        return <DiscoveryPage
+          onStartConfiguration={handleStartConfiguration}
+          onAddToCart={handleAddToCart}
+        />;
       case 'configurator':
         return (
           <ConfiguratorWizard
@@ -104,8 +132,21 @@ export default function App() {
         );
       case 'creator':
         return <CreatorStudio onBack={handleBackToDiscovery} />;
+      case 'cart':
+        return (
+          <ShoppingCartPage
+            items={cartItems}
+            onUpdateQuantity={handleUpdateCartQuantity}
+            onRemoveItem={handleRemoveCartItem}
+            onCheckout={() => { toast.success('Checkout not implemented yet'); }}
+            onBack={handleBackToDiscovery}
+          />
+        );
       default:
-        return <DiscoveryPage onStartConfiguration={handleStartConfiguration} />;
+        return <DiscoveryPage
+          onStartConfiguration={handleStartConfiguration}
+          onAddToCart={handleAddToCart}
+        />;
     }
   };
 
@@ -124,6 +165,20 @@ export default function App() {
             DeskHub
           </div>
           <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative"
+              onClick={() => setCurrentView('cart')}
+            >
+              <ShoppingCartIcon className="w-5 h-5" />
+              {cartItems.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                  {cartItems.reduce((acc, item) => acc + item.quantity, 0)}
+                </span>
+              )}
+            </Button>
+
             <Button
               variant={currentView === 'creator' ? 'default' : 'ghost'}
               onClick={() => {

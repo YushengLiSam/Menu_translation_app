@@ -35,6 +35,7 @@ interface SetupItem {
 interface Setup {
   id: number;
   title: string;
+  description?: string;
   image: string;
   kol: string;
   style: string;
@@ -46,16 +47,18 @@ const mockSetups: Setup[] = [
   {
     id: 1,
     title: 'Minimalist Workspace',
+    description: 'A clean and productive setup focusing on essential tools.',
     image: 'https://images.unsplash.com/photo-1590212151175-e58edd96185b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaW5pbWFsJTIwZGVzayUyMHNldHVwfGVufDF8fHx8MTc2MjE1MTExNnww&ixlib=rb-4.1.0&q=80&w=1080',
     kol: '@minimalist_dev',
     style: 'Minimal',
     budget: 'Medium',
     items: [
-      { id: '1', name: 'Herman Miller Monitor Arm', price: 299 },
-      { id: '2', name: 'Keychron K8 Mechanical Keyboard', price: 99 },
-      { id: '3', name: 'Bamboo Desk Organizer', price: 45 }
+      { id: '1', name: 'Herman Miller Monitor Arm', price: 299, x: 50, y: 50, description: 'High quality monitor arm', image: 'https://images.unsplash.com/photo-1596207047640-cdd73204944d?w=300' },
+      { id: '2', name: 'Keychron K8 Mechanical Keyboard', price: 99, x: 30, y: 70, image: 'https://images.unsplash.com/photo-1595225476474-87563907a212?w=300' },
+      { id: '3', name: 'Bamboo Desk Organizer', price: 45, x: 80, y: 60, image: 'https://images.unsplash.com/photo-1599643477877-530eb83abc5e?w=300' }
     ]
   },
+  // ... (keep other mocks if needed, but for brevity relying on backend or these)
   {
     id: 2,
     title: 'Gaming Battle Station',
@@ -64,9 +67,9 @@ const mockSetups: Setup[] = [
     style: 'Cyberpunk',
     budget: 'High-end',
     items: [
-      { id: '4', name: 'ROG 34" Curved Display', price: 899 },
-      { id: '5', name: 'Razer Mechanical Keyboard', price: 159 },
-      { id: '6', name: 'RGB Light Strip Kit', price: 49 }
+      { id: '4', name: 'ROG 34" Curved Display', price: 899, image: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=300' },
+      { id: '5', name: 'Razer Mechanical Keyboard', price: 159, image: 'https://images.unsplash.com/photo-1588725835639-66952d7e5baf?w=300' },
+      { id: '6', name: 'RGB Light Strip Kit', price: 49, image: 'https://images.unsplash.com/photo-1628178877526-7787e742c8d2?w=300' }
     ]
   },
   {
@@ -77,9 +80,9 @@ const mockSetups: Setup[] = [
     style: 'Modern',
     budget: 'Medium',
     items: [
-      { id: '7', name: 'LG 27" 4K Monitor', price: 449 },
-      { id: '8', name: 'Logitech MX Keys', price: 119 },
-      { id: '9', name: 'Desk Lamp', price: 79 }
+      { id: '7', name: 'LG 27" 4K Monitor', price: 449, image: 'https://images.unsplash.com/photo-1527443195645-1133f7f28990?w=300' },
+      { id: '8', name: 'Logitech MX Keys', price: 119, image: 'https://images.unsplash.com/photo-1587829745563-8441d563ce78?w=300' },
+      { id: '9', name: 'Desk Lamp', price: 79, image: 'https://images.unsplash.com/photo-1534073828943-f801091a7d58?w=300' }
     ]
   },
   {
@@ -90,9 +93,9 @@ const mockSetups: Setup[] = [
     style: 'Cozy',
     budget: 'Medium',
     items: [
-      { id: '10', name: 'IKEA Electric Standing Desk', price: 599 },
-      { id: '11', name: 'ErgoChair Pro', price: 399 },
-      { id: '12', name: 'Laptop Stand', price: 49 }
+      { id: '10', name: 'IKEA Electric Standing Desk', price: 599, image: 'https://images.unsplash.com/photo-1595846519845-68e298c2edd8?w=300' },
+      { id: '11', name: 'ErgoChair Pro', price: 399, image: 'https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?w=300' },
+      { id: '12', name: 'Laptop Stand', price: 49, image: 'https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?w=300' }
     ]
   },
   {
@@ -103,31 +106,35 @@ const mockSetups: Setup[] = [
     style: 'Creative',
     budget: 'High-end',
     items: [
-      { id: '13', name: 'Dell UltraSharp Dual Monitors', price: 1199 },
-      { id: '14', name: 'Wacom Drawing Tablet', price: 349 },
-      { id: '15', name: 'Professional Audio System', price: 299 }
+      { id: '13', name: 'Dell UltraSharp Dual Monitors', price: 1199, image: 'https://images.unsplash.com/photo-1544207765-92b5f6242e2c?w=300' },
+      { id: '14', name: 'Wacom Drawing Tablet', price: 349, image: 'https://images.unsplash.com/photo-1563203369-26f2e4a5ccf7?w=300' },
+      { id: '15', name: 'Professional Audio System', price: 299, image: 'https://images.unsplash.com/photo-1558498522-6b637a78377c?w=300' }
     ]
   },
   {
     id: 6,
     title: 'Ergonomic Optimized',
-    image: 'https://images.unsplash.com/photo-1713618502575-213ce1b24922?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlcmdvbm9taWMlMjBkZXNrfGVufDF8fHx8MTc2MjIxNjE4NHww&ixlib=rb-4.1.0&q=80&w=1080',
+    image: 'https://images.unsplash.com/photo-1713618502575-213ce1b24922?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxlcmdvbm9taWMlMjBkZXNrfGVufDF8fHx8MTc2MjIxNjE4NHww&ixlib=rb-4.1.0&q=80&w=1080',
     kol: '@ergonomic_expert',
     style: 'Ergonomic',
     budget: 'High-end',
     items: [
-      { id: '16', name: 'Herman Miller Aeron Chair', price: 1395 },
-      { id: '17', name: 'Adjustable Monitor Arm', price: 199 },
-      { id: '18', name: 'Anti-Fatigue Mat', price: 89 }
+      { id: '16', name: 'Herman Miller Aeron Chair', price: 1395, image: 'https://images.unsplash.com/photo-1505751171710-1f6d0ace5a85?w=300' },
+      { id: '17', name: 'Adjustable Monitor Arm', price: 199, image: 'https://images.unsplash.com/photo-1596207047640-cdd73204944d?w=300' },
+      { id: '18', name: 'Anti-Fatigue Mat', price: 89, image: 'https://images.unsplash.com/photo-1616401784845-180882ba9cb8?w=300' }
     ]
   }
 ];
 
+// Add to imports if needed, but simple interface update here:
+import type { CartItem } from '../components/ShoppingCartPage';
+
 interface DiscoveryPageProps {
   onStartConfiguration: () => void;
+  onAddToCart?: (item: CartItem) => void;
 }
 
-export function DiscoveryPage({ onStartConfiguration }: DiscoveryPageProps) {
+export function DiscoveryPage({ onStartConfiguration, onAddToCart }: DiscoveryPageProps) {
   const [hoveredSetup, setHoveredSetup] = useState<number | null>(null);
   const [selectedStyle, setSelectedStyle] = useState<string>('all');
   const [selectedBudget, setSelectedBudget] = useState<string>('all');
@@ -135,7 +142,8 @@ export function DiscoveryPage({ onStartConfiguration }: DiscoveryPageProps) {
   const [setups, setSetups] = useState<Setup[]>(mockSetups);
   const [isLoading, setIsLoading] = useState(true);
 
-  // New state for product detail dialog
+  // New state for template detail dialog
+  const [selectedTemplate, setSelectedTemplate] = useState<Setup | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<SetupItem | null>(null);
 
   useEffect(() => {
@@ -146,6 +154,7 @@ export function DiscoveryPage({ onStartConfiguration }: DiscoveryPageProps) {
         const mappedSetups: Setup[] = data.map(t => ({
           id: t.id,
           title: t.title,
+          description: t.description || 'No description available',
           image: t.cover_image_url || 'https://images.unsplash.com/photo-1590212151175-e58edd96185b?w=800', // Fallback
           kol: t.creator ? `@${t.creator.username}` : '@anonymous',
           style: t.style,
@@ -177,8 +186,20 @@ export function DiscoveryPage({ onStartConfiguration }: DiscoveryPageProps) {
   };
 
   const addToCart = () => {
-    toast.success('Added to cart!');
-    setSelectedProduct(null);
+    if (selectedProduct && onAddToCart) {
+      onAddToCart({
+        id: selectedProduct.id,
+        name: selectedProduct.name,
+        price: selectedProduct.price,
+        image: selectedProduct.image,
+        quantity: 1
+      });
+      setSelectedProduct(null); // Close dialog
+      // Toast is handled in App.tsx now, or we can keep it here. App.tsx has it.
+    } else {
+      toast.success('Added to cart!');
+      setSelectedProduct(null);
+    }
   };
 
   const filteredSetups = setups.filter(setup => {
@@ -191,9 +212,80 @@ export function DiscoveryPage({ onStartConfiguration }: DiscoveryPageProps) {
 
   return (
     <div className="min-h-screen bg-neutral-50">
+      {/* Template Detail Dialog (Xiaohongshu Style) */}
+      <Dialog open={!!selectedTemplate} onOpenChange={(open) => !open && setSelectedTemplate(null)}>
+        <DialogContent className="max-w-4xl p-0 overflow-hidden h-[80vh]">
+          {selectedTemplate && (
+            <div className="flex h-full flex-col md:flex-row">
+              {/* Left: Image with Tags */}
+              <div className="relative bg-neutral-900 md:w-2/3 h-1/2 md:h-full flex items-center justify-center">
+                <ImageWithFallback
+                  src={selectedTemplate.image}
+                  alt={selectedTemplate.title}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+
+              {/* Right: Info & Products */}
+              <div className="flex-1 flex flex-col h-1/2 md:h-full bg-white">
+                <div className="p-6 border-b flex-none">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-neutral-200 flex items-center justify-center text-lg font-bold">
+                      {selectedTemplate.kol[1].toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-semibold">{selectedTemplate.kol}</p>
+                      <p className="text-xs text-neutral-500">Suggested Workspace</p>
+                    </div>
+                    <Button variant="outline" size="sm" className="ml-auto">Follow</Button>
+                  </div>
+                  <h2 className="text-2xl font-bold mb-2">{selectedTemplate.title}</h2>
+                  <p className="text-neutral-600 text-sm">{selectedTemplate.description}</p>
+                  <div className="flex gap-2 mt-4">
+                    <Badge variant="secondary">{selectedTemplate.style}</Badge>
+                    <Badge variant="outline">{selectedTemplate.budget}</Badge>
+                  </div>
+                </div>
+
+                {/* Product List */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                  <h3 className="font-semibold text-sm text-neutral-500 uppercase tracking-wider">Featured Products</h3>
+                  {selectedTemplate.items.map((item) => (
+                    <div key={item.id} className="flex items-center gap-4 p-2 hover:bg-neutral-50 rounded-lg cursor-pointer transition-colors" onClick={(e) => handleProductClick(item, e)}>
+                      <div className="w-12 h-12 bg-neutral-100 rounded flex-none overflow-hidden">
+                        {item.image ? (
+                          <img src={item.image} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-neutral-300 text-xs">IMG</div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">{item.name}</p>
+                        <p className="text-xs text-neutral-500">¥{item.price}</p>
+                      </div>
+                      <Button size="icon" variant="ghost" className="h-8 w-8 text-neutral-400 hover:text-purple-600">
+                        <ShoppingCart className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Footer Action */}
+                <div className="p-6 border-t bg-neutral-50 flex-none">
+                  <Button onClick={onStartConfiguration} className="w-full bg-amber-500 hover:bg-amber-600 text-neutral-900 font-semibold" size="lg">
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Customize this Setup
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Product Detail Dialog */}
       <Dialog open={!!selectedProduct} onOpenChange={(open) => !open && setSelectedProduct(null)}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] z-50">
           {selectedProduct && (
             <>
               <DialogHeader>
@@ -308,7 +400,7 @@ export function DiscoveryPage({ onStartConfiguration }: DiscoveryPageProps) {
               className="group cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden"
               onMouseEnter={() => setHoveredSetup(setup.id)}
               onMouseLeave={() => setHoveredSetup(null)}
-              onClick={onStartConfiguration}
+              onClick={() => setSelectedTemplate(setup)}
             >
               <div className="relative aspect-[4/3] overflow-hidden">
                 <ImageWithFallback
@@ -317,34 +409,6 @@ export function DiscoveryPage({ onStartConfiguration }: DiscoveryPageProps) {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
 
-                {/* Render Interactive Dots */}
-                {setup.items.map((item, idx) => {
-                  if (item.x === undefined || item.y === undefined) return null; // Old data fallback
-
-                  return (
-                    <div
-                      key={item.id}
-                      className="absolute w-4 h-4 bg-white rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:scale-110 transition-transform animate-in fade-in duration-300"
-                      style={{
-                        left: `${item.x}%`,
-                        top: `${item.y}%`,
-                        transform: 'translate(-50%, -50%)',
-                        zIndex: 10
-                      }}
-                      onClick={(e) => handleProductClick(item, e)}
-                    >
-                      <div className="w-1.5 h-1.5 bg-purple-600 rounded-full" />
-
-                      {/* Hover Tooltip - Only show when card is hovered */}
-                      {hoveredSetup === setup.id && (
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-32 bg-white/95 backdrop-blur text-xs p-2 rounded shadow-lg pointer-events-none">
-                          <p className="font-medium truncate">{item.name}</p>
-                          <p className="text-neutral-500">¥{item.price}</p>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
 
                 {/* Hover Overlay with Items */}
                 {hoveredSetup === setup.id && (

@@ -18,6 +18,16 @@ class ProductCreate(BaseModel):
     category_id: int
     affiliate_links: List[AffiliateLinkCreate] = []
 
+class ProductUpdate(BaseModel):
+    name: Optional[str] = None
+    brand: Optional[str] = None
+    price: Optional[float] = None
+    currency: Optional[str] = None
+    image_url: Optional[str] = None
+    specs: Optional[dict] = None
+    category_id: Optional[int] = None
+    is_active: Optional[bool] = None
+
 # --- [原有] 读取专用 ---
 class AffiliateLinkRead(BaseModel):
     id: int
