@@ -1,7 +1,7 @@
 
 import { authService, type User } from './auth';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 export interface Product {
     id: number;

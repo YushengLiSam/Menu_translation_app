@@ -140,7 +140,7 @@ export function DiscoveryPage({ onStartConfiguration, onAddToCart }: DiscoveryPa
   const [selectedBudget, setSelectedBudget] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [setups, setSetups] = useState<Setup[]>(mockSetups);
-  const [isLoading, setIsLoading] = useState(true);
+
 
   // New state for template detail dialog
   const [selectedTemplate, setSelectedTemplate] = useState<Setup | null>(null);
@@ -174,7 +174,7 @@ export function DiscoveryPage({ onStartConfiguration, onAddToCart }: DiscoveryPa
         console.error("Failed to fetch templates", error);
         toast.error("Failed to load latest templates");
       } finally {
-        setIsLoading(false);
+
       }
     };
     fetchTemplates();
