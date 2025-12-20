@@ -37,7 +37,7 @@ cd ..
 # 2. Deploy Frontend
 echo "Deploying Frontend..."
 cd frontend
-gcloud builds submit --tag gcr.io/$PROJECT_ID/$FRONTEND_SERVICE
+gcloud builds submit --config cloudbuild.yaml --substitutions=_VITE_API_URL="$BACKEND_URL"
 
 gcloud run deploy $FRONTEND_SERVICE \
   --image gcr.io/$PROJECT_ID/$FRONTEND_SERVICE \
